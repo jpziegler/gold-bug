@@ -12,7 +12,7 @@ cipher_char key c = (search!0).0
                  | (prev, found) <- search | k <- key@0 | v <- key@1 ]
 
 /** Applies the substitution cipher defined by key to a string */
-cipher : {n, nk} (fin nk) => Key nk -> String n -> String n
+cipher : {n, nk} fin nk => Key nk -> String n -> String n
 cipher key = map (cipher_char key)
 
 /** cryptogram in _The Gold-Bug_ */
