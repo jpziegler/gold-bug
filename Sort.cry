@@ -21,13 +21,17 @@
 
 module Sort where
 
-/** Is the list sorted by `P: a -> a -> Bit`? */
-is_sorted_by_pred: {n, a} fin n => (a -> a -> Bit) -> [n]a -> Bit
-is_sorted_by_pred P list =
-    `n != 0 ==> and [ P x x' | x <- take`{max n 1 - 1} list | x' <- tail (list # [undefined]) ]
+/** Is the list sorted? */
+is_sorted: {n, a} (fin n, Cmp a) => [n]a -> Bit
+is_sorted list =
+    `n != 0 ==>
+    and [ x <= x'
+        | x <- take`{max n 1 - 1} list
+        | x' <- tail (list # [undefined])
+        ]
 
-/** test vectors for `is_sorted_by_pred` */
-property is_sorted_by_pred_test = and
+/** test vectors for `is_sorted` */
+property is_sorted_test = and
     [ v ""
     , v"A"
     , v "AA"
@@ -41,7 +45,7 @@ property is_sorted_by_pred_test = and
     ]
   where
     v: {n} fin n => String n -> Bit
-    v = is_sorted_by_pred (<=)
+    v = is_sorted
 
 /**
  * Merge two finite sequences by repeatedly taking the lesser of
@@ -49,23 +53,23 @@ property is_sorted_by_pred_test = and
  */
 merge:
     {m, n, a} (fin m, fin n, Cmp a) =>
-    (a -> a -> Bit) -> [m+n]a -> [m+n]a
-merge P s =
+    [m+n]a -> [m+n]a
+merge s =
     if `(min m n) == 0 then s
-     | P hf hr then
-        (take`{min 1 m} [hf]) # merge`{max m 1 - 1, n} P (tf # r)
+     | hf <= hr then
+        (take`{min 1 m} [hf]) # merge`{max m 1 - 1, n} (tf # r)
     else 
-        (take`{min 1 n} [hr]) # merge`{m, max n 1 - 1} P (f # tr)
+        (take`{min 1 n} [hr]) # merge`{m, max n 1 - 1} (f # tr)
   where
     (f, r) = splitAt`{m} s
     [hf] # tf = take`{max 1 m} (f # [undefined])
     [hr] # tr = take`{max 1 n} (r # [undefined])
 
 /** Sort a finite sequence by recursively sorting/merging subsequences */
-sort: {n, a} (fin n, Cmp a) => (a -> a -> Bit) -> [n]a -> [n]a
-sort P s =
+sort: {n, a} (fin n, Cmp a) => [n]a -> [n]a
+sort s =
     if `n <= 1 then s
-    else merge`{n/2} P ((sort P f) # (sort P r)) 
+    else merge`{n/2} ((sort f) # (sort r))
     where (f, r) = splitAt`{n/2} s
 
 /** test vectors for `sort` */
@@ -79,11 +83,11 @@ property sort_test = and
     ]
   where
     v : {n} fin n => String n -> String n
-    v x = sort (<=) x
+    v x = sort x
 
 /** Does `sort` indeed sort a sequence by `P: a -> a -> Bit`? */
-sort_sorts: {n, a} (fin n, Cmp a) => (a -> a -> Bit) -> [n]a -> Bit
-sort_sorts P s = is_sorted_by_pred P (sort P s)
+sort_sorts: {n, a} (fin n, Cmp a) => [n]a -> Bit
+sort_sorts s = is_sorted (sort s)
 
 
 /** auxiliary binary search for `index` */
