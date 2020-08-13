@@ -76,13 +76,9 @@ decrypt key msg =
     } = key
 
 
-/** comparison over enumerated characters */
-byChar: {_a} Cmp _a => (_a, Integer) -> (_a, Integer) -> Bit
-byChar (c, _) (c', _) = c <= c'
-
 /** Enumerate characters, then sort by character comparison */
 indexByChar: {_n, _a} (fin _n, Cmp _a) => [_n]_a -> [_n](_a, Integer)
-indexByChar x = sort byChar (enumerate x)
+indexByChar x = sort (<=) (enumerate x)
 
 
 // from [English Wikipedia - Substitution cipher](https://en.wikipedia.org/wiki/Substitution_cipher)

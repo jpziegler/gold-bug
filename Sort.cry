@@ -24,7 +24,7 @@ module Sort where
 /** Is the list sorted by `P: a -> a -> Bit`? */
 is_sorted_by_pred: {n, a} fin n => (a -> a -> Bit) -> [n]a -> Bit
 is_sorted_by_pred P list =
-    `n != 0 ==> ~0 == [ P a b | a <- take`{max n 1 - 1} list | b <- tail (list # [undefined]) ]
+    `n != 0 ==> and [ P x x' | x <- take`{max n 1 - 1} list | x' <- tail (list # [undefined]) ]
 
 /** test vectors for `is_sorted_by_pred` */
 property is_sorted_by_pred_test = and
