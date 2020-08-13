@@ -6,9 +6,9 @@ type Key nk = [2](String nk)
 
 /** Applies the substitution cipher defined by key to a character */
 cipher_char : {nk} fin nk => Key nk -> Char -> Char
-cipher_char key c = search!0
+cipher_char [ks,vs] c = search!0
   where search = [c] # [ if k == c then v else prev
-                 | prev <- search | k <- key@0 | v <- key@1 ]
+                 | prev <- search | k <- ks | v <- vs ]
 
 /** Applies the substitution cipher defined by key to a string */
 cipher : {n, nk} fin nk => Key nk -> String n -> String n
