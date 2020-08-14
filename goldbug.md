@@ -10,13 +10,12 @@ We begin with a module declaration and some types. 16-bit characters are used be
 ```cryptol
 module goldbug where
 
-/** The goldbug cipher uses several non-ASCII characters */
 type Char = [16]
 type String n = [n]Char
 type Key nk = [2](String nk)
 ```
 
-We begin our story at the point when William Legrand reveaels the cryptogram.
+We begin our story at the point when William Legrand reveals the cryptogram.
 
 > "I held the vellum again to the fire, after increasing the heat; but nothing appeared. I now thought it possible that the coating of dirt might have something to do with the failure; so I carefully rinsed the parchment by pouring warm water over it, and, having done this, I placed it in a tin pan, with the skull downwards, and put the pan upon a furnace of lighted charcoal. In a few minutes, the pan having become thoroughly heated, I removed the slip, and, to my inexpressible joy, found it spotted, in several places, with what appeared to be figures arranged in lines. Again I placed it in the pan, and suffered it to remain another minute. On taking it off, the whole was just as you see it now."
 >
@@ -79,7 +78,7 @@ goldbug_pt =
     "THROUGHTHESHOTFIFTYFEETOUT"
 ```
 
-In the short story, the reader is given only the partial key (10 characters). However, using the matched plaintext and ciphertext, Cryptol's solver functionality can easily derive the full key with minimal coding.
+In story, the reader is given only the partial key (10 characters). However, using the matched plaintext and ciphertext, Cryptol's solver functionality can easily derive the full key with minimal coding.
 
 We begin with a small helper function to ensure that the solution is presented in alphabetical order.
 
@@ -88,7 +87,7 @@ We begin with a small helper function to ensure that the solution is presented i
 is_sorted xs = and [a <= b | a <- xs | b <- tail xs]
 ```
 
-The following solver invocation discovers the solution. Some experimentation demonstrates that 20 is the minimum satisfiable key size. (Six letters are not represented.)
+The following solver invocation discovers the solution. Simple experimentation demonstrates that 20 is the minimum satisfiable key size. This is because six letters of the alphabet (J, K, Q, W, X, and Z) are not represented.
 
 ```shell
 Cryptol> :l goldbug.md
