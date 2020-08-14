@@ -89,7 +89,7 @@ is_sorted xs = and [a <= b | a <- xs | b <- tail xs]
 
 The following solver invocation discovers the solution. Simple experimentation demonstrates that 20 is the minimum satisfiable key size. This is because six letters of the alphabet (J, K, Q, W, X, and Z) are not represented.
 
-```shell
+```interpreter
 Cryptol> :l goldbug.md
 goldbug> :sat \(k:Key 20) -> cipher k goldbug_ct == goldbug_pt /\ is_sorted (k@1)
 ```
@@ -102,4 +102,10 @@ goldbug_full_key : Key 20
 goldbug_full_key = ["52-†8134609*‡.();?¶:", "ABCDEFGHILMNOPRSTUVY"]
 property goldbug_full_key_is_correct =
   cipher goldbug_full_key goldbug_ct == goldbug_pt
+```
+
+And the invocation:
+
+```interpreter
+goldbug> :prove goldbug_full_key_is_correct
 ```
