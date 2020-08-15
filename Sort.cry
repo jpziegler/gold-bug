@@ -22,13 +22,8 @@
 module Sort where
 
 /** Is the list sorted? */
-is_sorted: {n, a} (fin n, Cmp a) => [n]a -> Bit
-is_sorted list =
-    `n != 0 ==>
-    and [ x <= x'
-        | x <- take`{max n 1 - 1} list
-        | x' <- tail (list # [undefined])
-        ]
+is_sorted : {n, a} (fin n, Cmp a) => [n]a -> Bit
+is_sorted xs = and [a <= b | a <- xs | b <- drop`{min n 1} xs]
 
 /** test vectors for `is_sorted` */
 property is_sorted_test = and
