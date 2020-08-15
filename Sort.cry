@@ -1,0 +1,110 @@
+/*
+> HEAR the sledges with the bells —
+> Silver bells!
+> What a world of merriment their melody foretells!
+> How they tinkle, tinkle, tinkle,
+> In the icy air of night!
+> While the stars that oversprinkle
+> All the heavens, seem to twinkle
+> With a crystalline delight;
+> Keeping time, time, time,
+> In a sort of Runic rhyme,
+> To the tintinabulation that so musically wells
+> From the bells, bells, bells, bells,
+> Bells, bells, bells —
+> From the jingling and the tinkling of the bells.
+> 
+> - from _The Bells_ by Edgar Allan Poe
+
+* ("tintinabulation" is spelled "tintinnabulation"; did Poe know?)
+*/
+
+module Sort where
+
+/** Is the list sorted? */
+is_sorted : {n, a} (fin n, Cmp a) => [n]a -> Bit
+is_sorted xs = and [a <= b | a <- xs | b <- drop`{min n 1} xs]
+
+/** test vectors for `is_sorted` */
+property is_sorted_test = and
+    [ v ""
+    , v"A"
+    , v "AA"
+    , v "AB"
+    , v "ABB"
+    , v "AEGILOPS"
+    , v ['A'..'Z']
+    , ~ v "BA"
+    , ~ v "BAA"
+    , ~ v "CAB"
+    ]
+  where
+    v: {n} fin n => String n -> Bit
+    v = is_sorted
+
+/**
+ * Merge two finite sequences by repeatedly taking the lesser of
+ * their heads until at least one is empty
+ */
+merge:
+    {m, n, a} (fin m, fin n, Cmp a) =>
+    [m+n]a -> [m+n]a
+merge s =
+    if `(min m n) == 0 then s
+     | hf <= hr then
+        (take`{min 1 m} [hf]) # merge`{max m 1 - 1, n} (tf # r)
+    else 
+        (take`{min 1 n} [hr]) # merge`{m, max n 1 - 1} (f # tr)
+  where
+    (f, r) = splitAt`{m} s
+    [hf] # tf = take`{max 1 m} (f # [undefined])
+    [hr] # tr = take`{max 1 n} (r # [undefined])
+
+/** Sort a finite sequence by recursively sorting/merging subsequences */
+sort: {n, a} (fin n, Cmp a) => [n]a -> [n]a
+sort s =
+    if `n <= 1 then s
+    else merge`{n/2} ((sort f) # (sort r))
+    where (f, r) = splitAt`{n/2} s
+
+/** test vectors for `sort` */
+property sort_test = and
+    [ v "" == ""
+    , v "A" == "A"
+    , v "AB" == "AB"
+    , v "BA" == "AB"
+    , v "SPOILAGE" == "AEGILOPS"
+    , v "GLIBJOCKSQUIZNYMPHTOVEXDWARF" == "ABCDEFGHIIJKLMNOOPQRSTUVWXYZ"
+    ]
+  where
+    v : {n} fin n => String n -> String n
+    v x = sort x
+
+/** Does `sort` indeed sort a sequence by `P: a -> a -> Bit`? */
+sort_sorts: {n, a} (fin n, Cmp a) => [n]a -> Bit
+sort_sorts s = is_sorted (sort s)
+
+
+/** auxiliary binary search for `index` */
+index': {n, a, l, r} (fin n, fin l, fin r, Cmp a) => [n]a -> a -> Integer
+index' s x =
+    if `l > `r then error ":-("
+     | sm == x then `m
+     | sm < x  then index'`{n, a, m+1, r} s x
+               else index'`{n, a, l, (max 1 m)-1} s x
+  where
+    type m = (l + r) / 2
+    sm = s @ `m
+    (f, r) = splitAt`{n} s
+
+/** index of item `x` in sorted sequence `s` */
+index: {n, a} (fin n, Cmp a) => [n]a -> a -> Integer
+index s x = index'`{n, a, 0, max 1 n - 1} s x
+
+/** test vectors for `index` */
+property index_test = and
+    [ index "A" 'A' == 0
+    , index "AB" 'A' == 0
+    , index "AB" 'B' == 1
+    , index ['A'..'Z'] 'Z' == toInteger ('Z' - 'A')
+    ]
