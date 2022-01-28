@@ -5,12 +5,12 @@ The module is a [literate](https://en.wikipedia.org/wiki/Literate_programming) [
 
 Quoted excerpts from the original text are presented alongside relevant code segments.
 
-We begin with a module declaration and some types. 16-bit characters are used because the Gold-Bug cryptogram uses several non-ASCII characters.
+We begin with a module declaration and some types.
 
 ```cryptol
 module goldbug where
 
-type Char = [16]
+type Char = [8]
 type String n = [n]Char
 type Key nk = [2](String nk)
 ```
@@ -25,13 +25,13 @@ We begin our story at the point when William Legrand reveals the cryptogram.
 /** cryptogram in _The Gold-Bug_ */
 goldbug_ct : String 203
 goldbug_ct = 
-    "53‡‡†305))6*;4826)4‡.)4‡);80" #
-    "6*;48†8¶60))85;1‡(;:‡*8†83(88)" #
-    "5*†;46(;88*96*?;8)*‡(;485);5*†" #
-    "2:*‡(;4956*2(5*-4)8¶8*;40692" #
-    "85);)6†8)4‡‡;1(‡9;48081;8:8‡1" #
-    ";48†85;4)485†528806*81(‡9;48" #
-    ";(88;4(‡?34;48)4‡;161;:188;‡?;"
+    "53==+305))6*;4826)4=.)4=);80" #
+    "6*;48+8¶60))85;1=(;:=*8+83(88)" #
+    "5*+;46(;88*96*?;8)*=(;485);5*+" #
+    "2:*=(;4956*2(5*-4)8¶8*;40692" #
+    "85);)6+8)4==;1(=9;48081;8:8=1" #
+    ";48+85;4)485+528806*81(=9;48" #
+    ";(88;4(=?34;48)4=;161;:188;=?;"
 ```
 
 >"But," said I, returning him the slip, "I am as much in the dark as ever. Were all the jewels of Golconda awaiting me on my solution of this enigma, I am quite sure that I should be unable to earn them."
@@ -57,7 +57,7 @@ At this point, Legrand steps us through his reasoning by which he cracks the cip
 ```cryptol
 /** partial key narrated in _The Gold-Bug_ */
 goldbug_partial_key : Key 10
-goldbug_partial_key = ["5†8346*‡(;", "ADEGHINORT"]
+goldbug_partial_key = ["5+8346*=(;", "ADEGHINORT"]
 
 /** partially deciphered plaintext implied in _The Gold-Bug_ */
 goldbug_partial_pt = cipher goldbug_partial_key goldbug_ct
@@ -84,7 +84,7 @@ We begin with a small helper function to ensure that the solution is presented i
 
 ```cryptol
 /** Returns true if the list is a sorted set of unique elements */
-is_sorted xs = and [a <= b | a <- xs | b <- tail xs]
+is_sorted xs = and [a < b | a <- xs | b <- tail xs]
 ```
 
 The following solver invocation discovers the solution. Simple experimentation demonstrates that 20 is the minimum satisfiable key size. This is because six letters of the alphabet (J, K, Q, W, X, and Z) are not represented.
@@ -99,7 +99,7 @@ The following property shows that the discovered key `goldbug_full_key` is in fa
 ```cryptol
 /** Full key derived from matched PT/CT */
 goldbug_full_key : Key 20
-goldbug_full_key = ["52-†8134609*‡.();?¶:", "ABCDEFGHILMNOPRSTUVY"]
+goldbug_full_key = ["52-+8134609*=.();?¶:", "ABCDEFGHILMNOPRSTUVY"]
 property goldbug_full_key_is_correct =
   cipher goldbug_full_key goldbug_ct == goldbug_pt
 ```
