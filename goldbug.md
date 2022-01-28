@@ -5,7 +5,7 @@ The module is a [literate](https://en.wikipedia.org/wiki/Literate_programming) [
 
 Quoted excerpts from the original text are presented alongside relevant code segments.
 
-We begin with a module declaration and some types.
+We first declare a module and some types.
 
 ```cryptol
 module goldbug where
@@ -78,9 +78,9 @@ goldbug_pt =
     "THROUGHTHESHOTFIFTYFEETOUT"
 ```
 
-In story, the reader is given only the partial key (10 characters). However, using the matched plaintext and ciphertext, Cryptol's solver functionality can easily derive the full key with minimal coding.
+In the story, the reader is given only the partial key (10 characters). However, using the matched plaintext and ciphertext, Cryptol's solver functionality can easily derive the full key with minimal coding.
 
-We begin with a small helper function to ensure that the solution is presented in alphabetical order.
+We define a small helper function to ensure that the solution is presented in alphabetical order.
 
 ```cryptol
 /** Returns true if the list is a sorted set of unique elements */
