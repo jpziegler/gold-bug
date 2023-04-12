@@ -1,0 +1,166 @@
+/*
+> "But," said I, returning him the slip, "I am as much in the dark as 
+> ever. Were all the jewels of Golconda awaiting me on my solution of 
+> this enigma, I am quite sure that I should be unable to earn them."
+> 
+> "And yet," said Legrand, "the solution is by no means so difficult 
+> as you might be led to imagine from the first hasty inspection of 
+> the characters. These characters, as any one might readily guess, 
+> form a cipher -- that is to say, they convey a meaning; but then, 
+> from what is known of Kidd, I could not suppose him capable of 
+> constructing any of the more abstruse cryptographs. I made up my 
+> mind, at once, that this was of a simple species -- such, however, 
+> as would appear, to the crude intellect of the sailor, absolutely 
+> insoluble without the key."
+> 
+> - from _The Gold-Bug_ by Edgar Allan Poe
+*/
+
+module Substitution where
+
+import Sort
+import Util
+
+// A message is a number `n` of characters of arbitrary type `a`
+type Message m a = [m]a
+
+/** 
+ * A substitution key comprises:
+ *   * a `from` alphabet of `n` plaintext characters of arbitrary type `a`
+ *   * a `substitution` defining ciphertext characters per plaintext
+       (of a possibly different arbitrary type), and 
+ *   * a pre-computed permutation mapping `pi`
+ */
+type Key n a b =
+    { fromByTo : [n]a
+    , from     : [n]a
+    , toByFrom : [n]b
+    , to       : [n]b
+    }
+
+/**
+ * Given `from` and `to` alphabets, index `from` and `to` into 
+ * sorted alphabets and permutation mappings to produce `key`
+ */
+genKey: {n, a, b} (fin n, Cmp a, Cmp b) => [n]a -> [n]b -> Key n a b
+genKey from to =
+    { fromByTo = from @@ toByChar.1
+    , from     = fromByChar.0
+    , toByFrom = to @@ fromByChar.1
+    , to       = toByChar.0
+    }
+  where
+    fromByChar = indexByChar from
+    toByChar   = indexByChar to
+
+/** Encrypt plaintext `msg` by substitution `key` */
+encrypt: {n, a, b, m} (fin n, Cmp a) => Key n a b -> Message m a -> Message m b
+encrypt key msg =
+    toByFrom @@ ( map (index from) msg )
+  where
+    { fromByTo = _
+    , from     = from
+    , toByFrom = toByFrom
+    , to       = _
+    } = key
+
+/** Decrypt ciphertext by substitution `key` */
+decrypt: {n, a, b, m} (fin n, Cmp b) => Key n a b -> Message m b -> Message m a
+decrypt key msg =
+    fromByTo @@ ( map (index to) msg )
+  where
+    { fromByTo = fromByTo
+    , from     = _
+    , toByFrom = _
+    , to       = to
+    } = key
+
+
+/** Enumerate characters, then sort by character comparison */
+indexByChar: {n, a} (fin n, Cmp a) => [n]a -> [n](a, Integer)
+indexByChar x = sort (enumerate x)
+
+
+// from [English Wikipedia - Substitution cipher](https://en.wikipedia.org/wiki/Substitution_cipher)
+wikiKey = genKey
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "ZEBRASCDFGHIJKLMNOPQTUVWXY"
+wikiMsg  = "FLEEATONCEWEAREDISCOVERED"
+wikiGram = "SIAAZQLKBAVAZOARFPBLUAOAR"
+property wikiTest = and
+    [ encrypt wikiKey wikiMsg  == wikiGram
+    , decrypt wikiKey wikiGram == wikiMsg
+    ]
+
+// from [Simple English Wikipedia - Substitution cipher](https://simple.wikipedia.org/wiki/Substitution_cipher)
+simpleKey = genKey
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "THANKYOUVERMPZXWSQBCDFGIJL"  // <- P was erroneously U
+simpleMsg  = "JACKANDJILLWENTUPTHEHILL"
+simpleGram = "ETARTZNEVMMGKZCDWCUKUVMM"
+property simpleTest = and
+    [ encrypt simpleKey simpleMsg  == simpleGram
+    , decrypt simpleKey simpleGram == simpleMsg
+    ]
+
+notSoSimpleKey = genKey         // not provided in article
+    "abcdefghijklmnoprstuvwxyz" // no "q"
+    "EKGHIJYLMNAPZWSCVRXTOQBFU" // no "D"
+notSoSimpleGram =
+    "LIVITCSWPIYVEWHEVSRIQMXLEYVEOIEWHRXEXIPFEMVEWHKVSTYLXZIXLIKIIXPIJVSZEYPERRGERIM" #
+    "WQLMGLMXQERIWGPSRIHMXQEREKIETXMJTPRGEVEKEITREWHEXXLEXXMZITWAWSQWXSWEXTVEPMRXRSJ" #
+    "GSTVRIEYVIEXCVMUIMWERGMIWXMJMGCSMWXSJOMIQXLIVIQIVIXQSVSTWHKPEGARCSXRWIEVSWIIBXV" #
+    "IZMXFSJXLIKEGAEWHEPSWYSWIWIEVXLISXLIVXLIRGEPIRQIVIIBGIIHMWYPFLEVHEWHYPSRRFQMXLE" #
+    "PPXLIECCIEVEWGISJKTVWMRLIHYSPHXLIQIMYLXSJXLIMWRIGXQEROIVFVIZEVAEKPIEWHXEAMWYEPP" #
+    "XLMWYRMWXSGSWRMHIVEXMSWMGSTPHLEVHPFKPEZINTCMXIVJSVLMRSCMWMSWVIRCIGXMWYMXXLIYSPH" #
+    "KTY"
+notSoSimpleMsg =
+    "hereuponlegrandarosewithagraveandstatelyairandbroughtmethebeetlefromaglasscasei" #
+    "nwhichitwasencloseditwasabeautifulscarabaeusandatthattimeunknowntonaturalistsof" #
+    "courseagreatprizeinascientificpointofviewthereweretworoundblackspotsnearoneextr" #
+    "emityofthebackandalongoneneartheotherthescaleswereexceedinglyhardandglossywitha" #
+    "lltheappearanceofburnishedgoldtheweightoftheinsectwasveryremarkableandtakingall" #
+    "thingsintoconsiderationicouldhardlyblamejupiterforhisopinionrespectingitthegold" #
+    "bug"
+property notSoSimpleTest = and
+    [ encrypt notSoSimpleKey notSoSimpleMsg  == notSoSimpleGram
+    , decrypt notSoSimpleKey notSoSimpleGram == notSoSimpleMsg
+    ]
+
+// from _The Gold-Bug_, ASCII-fied
+pewterBug = genKey
+    "ABCDEFGHILMNOPRSTUVY"
+    "52-+8134609*#.();?&:"  // ASCII-fied cipher alphabet
+pewterMsg =
+    "AGOODGLASSINTHEBISHOPSHOSTEL"          #
+    "INTHEDEVILSSEATFORTYONEDEGREES"        #
+    "ANDTHIRTEENMINUTESNORTHEASTANDBYNORTH" #
+    "MAINBRANCHSEVENTHLIMBEASTSIDE"         #
+    "SHOOTFROMTHELEFTEYEOFTHEDEATHSHEAD"    #
+    "ABEELINEFROMTHETREE"                   #
+    "THROUGHTHESHOTFIFTYFEETOUT"
+pewterGram =
+    "53##+305))6*;4826)4#.)4#);80"   #
+    "6*;48+8&60))85;1#(;:#*8+83(88)" #
+    "5*+;46(;88*96*?;8)*#(;485);5*+" #
+    "2:*#(;4956*2(5*-4)8&8*;40692"   #
+    "85);)6+8)4##;1(#9;48081;8:8#1"  #
+    ";48+85;4)485+528806*81(#9;48"   #
+    ";(88;4(#?34;48)4#;161;:188;#?;"
+property pewterTest = and
+    [ encrypt pewterBug pewterMsg  == pewterGram
+    , decrypt pewterBug pewterGram == pewterMsg
+    ]
+
+
+/** Decryption with same key recovers plaintext */
+recovery:
+    {n, a, b, m}
+    (fin n, Cmp a, Cmp b, fin m) =>
+    Key n a b -> Message m a -> Bit
+recovery key msg = decrypt key (encrypt key msg) == msg
+
+/*
+> :prove recovery`{m=1} (genKey ['A'..'Z' :Char] (reverse ['A'..'Z' :Char]))
+... :-(
+*/
