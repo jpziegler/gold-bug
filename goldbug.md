@@ -1,5 +1,5 @@
 # The Gold-Bug Cryptogram
-This document represents the cryptogram from Edgar Allen Poe's short story [The Gold-Bug](https://poestories.com/read/goldbug).
+This document represents the cryptogram from Edgar Allan Poe's short story [The Gold-Bug](https://poestories.com/read/goldbug).
 
 The module is a [literate](https://en.wikipedia.org/wiki/Literate_programming) [Cryptol](https://cryptol.net/) document and can be executed using the Cryptol interpreter.
 
@@ -17,7 +17,7 @@ type Key nk = [2](String nk)
 
 We begin our story at the point when William Legrand reveals the cryptogram.
 
-> "I held the vellum again to the fire, after increasing the heat; but nothing appeared. I now thought it possible that the coating of dirt might have something to do with the failure; so I carefully rinsed the parchment by pouring warm water over it, and, having done this, I placed it in a tin pan, with the skull downwards, and put the pan upon a furnace of lighted charcoal. In a few minutes, the pan having become thoroughly heated, I removed the slip, and, to my inexpressible joy, found it spotted, in several places, with what appeared to be figures arranged in lines. Again I placed it in the pan, and suffered it to remain another minute. On taking it off, the whole was just as you see it now."
+>"I held the vellum again to the fire, after increasing the heat; but nothing appeared. I now thought it possible that the coating of dirt might have something to do with the failure; so I carefully rinsed the parchment by pouring warm water over it, and, having done this, I placed it in a tin pan, with the skull downwards, and put the pan upon a furnace of lighted charcoal. In a few minutes, the pan having become thoroughly heated, I removed the slip, and, to my inexpressible joy, found it spotted, in several places, with what appeared to be figures arranged in lines. Again I placed it in the pan, and suffered it to remain another minute. On taking it off, the whole was just as you see it now."
 >
 >Here Legrand, having re-heated the parchment, submitted It my inspection. The following characters were rudely traced, in a red tint, between the death's-head and the goat:
 
