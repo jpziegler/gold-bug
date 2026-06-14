@@ -1,0 +1,42 @@
+/*
+> It seems somewhat strange that a study of such obvious utility, and 
+> one which so long ago attained its due place in the seminaries of 
+> Europe, should need recommending in this country at this late day.
+> - Edgar Allan Poe, endorsing Natural History as a field of study.
+*/
+module Util where
+
+/** enumerate `seq` by `Integer` index */
+enumerate: {n, a} fin n => [n]a -> [n](a, Integer)
+enumerate seq =
+    zip seq (take [0...])
+
+
+// not used
+
+/** Is s a finite sequence of unique items? */
+is_set: {n, a} (fin n, Eq a) => [n]a -> Bit
+is_set s =
+    `n != 0
+    ==> ~ (elem (head (s # [undefined])) (drop`{min 1 n} s))
+    /\ is_set (drop`{min 1 n} s)
+
+/** test vectors for `is_set` */
+property is_set_test = and
+    [   is_set ""
+    ,   is_set "A"
+    ,   is_set "AB"
+    ,   is_set "BA"
+    , ~ is_set "AA"
+    , ~ is_set "AAB"
+    , ~ is_set "ABA"
+    , ~ is_set "ABB"
+    ]
+
+
+/** inverse of permutation mapping `pi` */
+inverse:
+    {n, w}
+    (fin n, Integral w, Literal 0 w) =>
+    [n]w -> [n]w
+inverse pi = updates pi pi (take [0...])
